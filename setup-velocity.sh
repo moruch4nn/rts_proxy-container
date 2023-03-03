@@ -5,7 +5,7 @@
 #
 function get() {
   local response
-  response=$(curl --request "GET" "$1" | tr -d "[:cntrl:]")
+  response=$(curl -fsSL --request "GET" "$1" | tr -d "[:cntrl:]")
   local result
   result=$(parse_json "$response" "$2")
   echo "$result"
@@ -34,7 +34,7 @@ function setup_velocity() {
   file_name=$(parse_json "$latest_build" ".downloads.application.name")
   local download_link
   download_link="https://api.papermc.io/v2/projects/velocity/versions/${version}/builds/$build_number/downloads/$file_name"
-  curl "$download_link" --output proxy.jar
+  curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output proxy.jar
   echo "downloaded the latest velocity proxy."
 }
 
@@ -52,7 +52,7 @@ function generate_velocity_config() {
   --forwarding_secret "${FORWARDING_SECRET:-""}" \
   --announce_forge "${ANNOUNCE_FORGE:-"false"}" \
   --kick_existing_players "${KICK_EXISTING_PLAYERS:-"true"}" \
-  --ping_passthrough "${ping_passthrough:-"disabled"}" \
+  --ping_passthrough "${PING_PASSTHROUGH:-"disabled"}" \
   --servers "${SERVERS:-"lobby=127.0.0.1:25566"}" \
   --try "${TRY:-"lobby"}" \
   --forced_hosts "${FORCED_HOSTS:-"lobby.example.com=lobby"}" \
@@ -90,7 +90,7 @@ function download_latest_luckperms() {
   local download_link
   download_link=$(get "https://metadata.luckperms.net/data/all" ".downloads.velocity")
   mkdir -p plugins
-  curl "$download_link" --output ./plugins/luckperms.jar
+  curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output ./plugins/luckperms.jar
 }
 
 #
@@ -100,10 +100,45 @@ function download_latest_viaversion() {
   local download_link
   download_link=https://api.spiget.org/v2/resources/19254/download
   mkdir -p plugins
-  curl "$download_link" --output ./plugins/viaversion.jar
+  curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output ./plugins/viaversion.jar
+}
+
+function download_latest_geyser() {
+  local download_link
+  download_link=https://ci.opencollab.dev/job/GeyserMC/job/Geyser/job/master/lastSuccessfulBuild/artifact/bootstrap/velocity/build/libs/Geyser-Velocity.jar
+  mkdir -p plugins
+  curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output ./plugins/geyser.jar
+}
+
+function download_latest_floodgate() {
+  local download_link
+  download_link=https://ci.opencollab.dev/job/GeyserMC/job/Floodgate/job/master/lastSuccessfulBuild/artifact/velocity/build/libs/floodgate-velocity.jar
+  mkdir -p plugins
+  curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output ./plugins/floodgate.jar
+}
+
+function download_plugins() {
+  if [ -n "${PLUGIN_LINKS}" ]; then
+    local plugin_links
+    plugin_links=$(echo "${PLUGIN_LINKS}" | tr "," "\n")
+    for file_link_name in $plugin_links
+    do
+      if [[ $file_link_name =~ (.+?)=(.+) ]]; then
+        local file_name
+        local download_link
+        file_name=${BASH_REMATCH[1]}
+        download_link=${BASH_REMATCH[2]}
+        curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output $file_name
+      fi
+    done
+  fi
 }
 
 setup_velocity
 generate_velocity_config
 download_latest_luckperms
+download_latest_viaversion
+download_latest_geyser
+download_latest_floodgate
+download_plugins
 start_velocity_server
