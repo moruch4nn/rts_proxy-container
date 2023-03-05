@@ -77,6 +77,9 @@ function generate_velocity_config() {
   --query_show_plugins "${QUERY_SHOW_PLUGINS:-"false"}" \
   --output "velocity.toml"
   echo "generated velocity configuration"
+  if [ ! -f "${FORWARDING_SECRET_FILE:-"forwarding.secret"}" ]; then
+    < /dev/random tr -dc 'a-zA-Z0-9' | fold -16 | head -1 > "${FORWARDING_SECRET_FILE:-"forwarding.secret"}"
+  fi
 }
 
 #
