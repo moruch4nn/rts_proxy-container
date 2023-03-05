@@ -50,7 +50,7 @@ function generate_velocity_config() {
   --force_key_authentication "${FORCE_KEY_AUTHENTICATION:-"true"}" \
   --prevent_client_proxy_connections "${PREVENT_CLIENT_PROXY_CONNECTIONS:-"false"}" \
   --player_info_forwarding_mode "${PLAYER_INFO_FORWARDING_MODE:-"none"}" \
-  --forwarding_secret_file "${FORWARDING_SECRET_FILE:-""}" \
+  --forwarding_secret_file "${FORWARDING_SECRET_FILE:-"forwarding.secret"}" \
   --announce_forge "${ANNOUNCE_FORGE:-"false"}" \
   --kick_existing_players "${KICK_EXISTING_PLAYERS:-"true"}" \
   --ping_passthrough "${PING_PASSTHROUGH:-"disabled"}" \
