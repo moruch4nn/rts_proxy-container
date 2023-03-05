@@ -47,12 +47,14 @@ function generate_velocity_config() {
   --motd "${MOTD:-"&#09add3A Velocity Server"}" \
   --show_max_players "${SHOW_MAX_PLAYERS:-"500"}" \
   --online_mode "${ONLINE_MODE:-"true"}" \
+  --force_key_authentication "${FORCE_KEY_AUTHENTICATION:-"true"}" \
   --prevent_client_proxy_connections "${PREVENT_CLIENT_PROXY_CONNECTIONS:-"false"}" \
   --player_info_forwarding_mode "${PLAYER_INFO_FORWARDING_MODE:-"none"}" \
-  --forwarding_secret "${FORWARDING_SECRET:-""}" \
+  --forwarding_secret_file "${FORWARDING_SECRET_FILE:-""}" \
   --announce_forge "${ANNOUNCE_FORGE:-"false"}" \
   --kick_existing_players "${KICK_EXISTING_PLAYERS:-"true"}" \
   --ping_passthrough "${PING_PASSTHROUGH:-"disabled"}" \
+  --enable_player_address_logging "${ENABLE_PLAYER_ADDRESS_LOGGING:-"true"}" \
   --servers "${SERVERS:-"lobby=127.0.0.1:25566"}" \
   --try "${TRY:-"lobby"}" \
   --forced_hosts "${FORCED_HOSTS:-"lobby.example.com=lobby"}" \
@@ -68,6 +70,7 @@ function generate_velocity_config() {
   --failover_on_unexpected_server_disconnect "${FAILOVER_ON_UNEXPECTED_SERVER_DISCONNECT:-"true"}" \
   --announce_proxy_commands "${ANNOUNCE_PROXY_COMMANDS:-"true"}" \
   --log_command_executions "${LOG_COMMAND_EXECUTIONS:-"false"}" \
+  --log_player_connections "${LOG_PLAYER_CONNECTIONS:-"true"}" \
   --query_enabled "${QUERY_ENABLED:-"true"}" \
   --query_port "${QUERY_PORT:-"25577"}" \
   --query_map "${QUERY_MAP:-"Velocity"}" \
