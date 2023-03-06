@@ -84,7 +84,9 @@ function generate_velocity_config() {
   fi
 
   # server-icon.pngがない場合はダウンロードしてくる
-  curl "$SERVER_ICON" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output server-icon.png
+  if [ -n "${SERVER_ICON}" ]; then
+    curl "$SERVER_ICON" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output server-icon.png
+  fi
 }
 
 #
