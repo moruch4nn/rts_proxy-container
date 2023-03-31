@@ -35,7 +35,6 @@ function setup_velocity() {
   local download_link
   download_link="https://api.papermc.io/v2/projects/velocity/versions/${version}/builds/$build_number/downloads/$file_name"
   curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output proxy.jar
-  echo "downloaded the latest velocity proxy."
 }
 
 #
@@ -76,7 +75,6 @@ function generate_velocity_config() {
   --query_map "${QUERY_MAP:-"Velocity"}" \
   --query_show_plugins "${QUERY_SHOW_PLUGINS:-"false"}" \
   --output "velocity.toml"
-  echo "generated velocity configuration"
 
   # forwarding.secretが存在しない場合は生成する
   if [ ! -f "${FORWARDING_SECRET_FILE:-"forwarding.secret"}" ]; then
@@ -96,14 +94,20 @@ function start_velocity_server() {
   java -jar -XX:+UseG1GC -XX:G1HeapRegionSize=4M -XX:+UnlockExperimentalVMOptions -XX:+ParallelRefProcEnabled -XX:+AlwaysPreTouch -XX:MaxInlineLevel=15 proxy.jar nogui
 }
 
+function download_plugin() {
+  local download_link="$1"
+  local file_name="$2"
+  mkdir -p plugins
+  curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output "./plugins/${file_name}"
+}
+
 #
 # LuckPermsの最新バージョンをダウンロード
 #
 function download_latest_luckperms() {
   local download_link
   download_link=$(get "https://metadata.luckperms.net/data/all" ".downloads.velocity")
-  mkdir -p plugins
-  curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output ./plugins/luckperms.jar
+  download_plugin "$download_link" "luckperms.jar"
 }
 
 #
@@ -112,22 +116,41 @@ function download_latest_luckperms() {
 function download_latest_viaversion() {
   local download_link
   download_link=https://api.spiget.org/v2/resources/19254/download
-  mkdir -p plugins
-  curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output ./plugins/viaversion.jar
+  download_plugin "$download_link" viaversion.jar
 }
 
+function download_latest_rtsproxy() {
+  local download_link
+  download_link=https://github.com/moruch4nn/rts-proxy-plugin/releases/latest/download/rts-proxy.jar
+  download_plugin "$download_link" rtsproxy.jar
+}
+
+#
+# GeyserMCの最新バージョンをダウンロード
+#
 function download_latest_geyser() {
   local download_link
   download_link=https://ci.opencollab.dev/job/GeyserMC/job/Geyser/job/master/lastSuccessfulBuild/artifact/bootstrap/velocity/build/libs/Geyser-Velocity.jar
   mkdir -p plugins
-  curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output ./plugins/geyser.jar
+  download_plugin "$download_link" geyser.jar
 }
 
+#
+# 最新のOnlyLatestをダウンロード
+#
+function download_latest_onlylatest() {
+  local download_link
+  download_link=https://github.com/moruch4nn/OnlyLatest/releases/latest/download/only-latest.jar
+  download_plugin "$download_link" onlylatest.jar
+}
+
+#
+# 最新のFloodgateをダウンロード
+#
 function download_latest_floodgate() {
   local download_link
   download_link=https://ci.opencollab.dev/job/GeyserMC/job/Floodgate/job/master/lastSuccessfulBuild/artifact/velocity/build/libs/floodgate-velocity.jar
-  mkdir -p plugins
-  curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output ./plugins/floodgate.jar
+  download_plugin "$download_link" floodgate.jar
 }
 
 function download_plugins() {
@@ -141,17 +164,30 @@ function download_plugins() {
         local download_link
         file_name=${BASH_REMATCH[1]}
         download_link=${BASH_REMATCH[2]}
-        curl "$download_link" -fsSL -H "User-Agent: RedTownServer-Proxy-Setup" --output $file_name
+        download_plugin "$download_link" file_name.jar &
       fi
     done
   fi
+  wait
 }
 
-setup_velocity
-generate_velocity_config
-download_latest_luckperms
-download_latest_viaversion
-download_latest_geyser
-download_latest_floodgate
-download_plugins
+# Velocity関連のセットアップ
+setup_velocity &
+generate_velocity_config &
+
+# 必要なプラグインのセットアップ
+download_latest_luckperms &
+download_latest_viaversion &
+download_latest_geyser &
+download_latest_floodgate &
+download_latest_onlylatest &
+download_latest_rtsproxy &
+
+# 追加のプラグインが必要な場合はダウンロード
+download_plugins &
+
+# 並列実行の終了を待機
+wait
+
+# Velocityプラグインを起動
 start_velocity_server
