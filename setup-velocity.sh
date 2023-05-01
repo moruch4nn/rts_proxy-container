@@ -153,6 +153,15 @@ function download_latest_floodgate() {
   download_plugin "$download_link" floodgate.jar
 }
 
+#
+# 最新のvTunnelをダウンロード
+#
+function download_latest_vtunnel() {
+  local download_link
+  download_link=https://github.com/moruch4nn/vTunnel/releases/latest/download/vtunnel-server_velocity.jar
+  download_plugin "$download_link" floodgate.jar
+}
+
 function download_plugins() {
   if [ -n "${PLUGIN_LINKS}" ]; then
     local plugin_links
@@ -182,6 +191,7 @@ download_latest_geyser &
 download_latest_floodgate &
 download_latest_onlylatest &
 download_latest_rtsproxy &
+download_latest_vtunnel &
 
 # 追加のプラグインが必要な場合はダウンロード
 download_plugins &
