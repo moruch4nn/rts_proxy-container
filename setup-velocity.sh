@@ -27,6 +27,7 @@ function setup_velocity() {
   local version
   version=$(get "https://api.papermc.io/v2/projects/velocity" ".versions[-1]")
   local latest_build
+  sleep 3s
   latest_build=$(get "https://api.papermc.io/v2/projects/velocity/versions/${version}/builds" ".builds[-1]")
   local build_number
   build_number=$(parse_json "$latest_build" ".build")
@@ -105,8 +106,10 @@ function download_plugin() {
 # LuckPermsの最新バージョンをダウンロード
 #
 function download_latest_luckperms() {
+  echo "downloading luckperms..."
   local download_link
   download_link=$(get "https://metadata.luckperms.net/data/all" ".downloads.velocity")
+  sleep 3s
   download_plugin "$download_link" "luckperms.jar"
 }
 
@@ -114,12 +117,14 @@ function download_latest_luckperms() {
 # ViaVersionの最新バージョンをダウンロード
 #
 function download_latest_viaversion() {
+  echo "downloading viaversion..."
   local download_link
   download_link=https://api.spiget.org/v2/resources/19254/download
   download_plugin "$download_link" viaversion.jar
 }
 
 function download_latest_rtsproxy() {
+  echo "downloading rtsproxy..."
   local download_link
   download_link=https://github.com/moruch4nn/rts-proxy-plugin/releases/latest/download/rts-proxy.jar
   download_plugin "$download_link" rtsproxy.jar
@@ -129,6 +134,7 @@ function download_latest_rtsproxy() {
 # GeyserMCの最新バージョンをダウンロード
 #
 function download_latest_geyser() {
+  echo "downloading geyser..."
   local download_link
   download_link=https://ci.opencollab.dev/job/GeyserMC/job/Geyser/job/master/lastSuccessfulBuild/artifact/bootstrap/velocity/build/libs/Geyser-Velocity.jar
   mkdir -p plugins
@@ -139,6 +145,7 @@ function download_latest_geyser() {
 # 最新のOnlyLatestをダウンロード
 #
 function download_latest_onlylatest() {
+  echo "downloading onlylatest..."
   local download_link
   download_link=https://github.com/moruch4nn/OnlyLatest/releases/latest/download/only-latest.jar
   download_plugin "$download_link" onlylatest.jar
@@ -148,6 +155,7 @@ function download_latest_onlylatest() {
 # 最新のFloodgateをダウンロード
 #
 function download_latest_floodgate() {
+  echo "downloading floodgate..."
   local download_link
   download_link=https://ci.opencollab.dev/job/GeyserMC/job/Floodgate/job/master/lastSuccessfulBuild/artifact/velocity/build/libs/floodgate-velocity.jar
   download_plugin "$download_link" floodgate.jar
@@ -157,9 +165,10 @@ function download_latest_floodgate() {
 # 最新のvTunnelをダウンロード
 #
 function download_latest_vtunnel() {
+  echo "downloading vtunnel..."
   local download_link
   download_link=https://github.com/moruch4nn/vTunnel/releases/latest/download/vtunnel-server_velocity.jar
-  download_plugin "$download_link" floodgate.jar
+  download_plugin "$download_link" vtunnel.jar
 }
 
 function download_plugins() {
@@ -185,16 +194,16 @@ setup_velocity &
 generate_velocity_config &
 
 # 必要なプラグインのセットアップ
-download_latest_luckperms &
-download_latest_viaversion &
-download_latest_geyser &
-download_latest_floodgate &
-download_latest_onlylatest &
-download_latest_rtsproxy &
-download_latest_vtunnel &
+download_latest_luckperms %
+download_latest_viaversion
+download_latest_geyser
+download_latest_floodgate
+download_latest_onlylatest
+download_latest_rtsproxy
+download_latest_vtunnel
 
 # 追加のプラグインが必要な場合はダウンロード
-download_plugins &
+download_plugins
 
 # 並列実行の終了を待機
 wait
